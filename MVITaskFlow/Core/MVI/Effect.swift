@@ -13,4 +13,8 @@ public struct Effect<Intent>: Sendable {
     }
 
     public static var none: [Effect] { [] }
+    
+    public func run() async -> Intent? {
+        await operation()
+    }
 }
