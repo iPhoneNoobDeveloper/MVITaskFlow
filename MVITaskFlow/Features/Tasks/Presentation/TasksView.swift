@@ -22,12 +22,17 @@ struct TasksView: View {
             .navigationTitle("Tasks")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        store.send(.refresh)
-                    } label: {
-                        Image(systemName: "arrow.clockwise")
+                    if store.state.isLoading {
+                        ProgressView()
+                            .accessibilityLabel("Loading")
+                    } else {
+                        Button {
+                            store.send(.refresh)
+                        } label: {
+                            Image(systemName: "arrow.clockwise")
+                        }
+                        .accessibilityLabel("Refresh")
                     }
-                    .accessibilityLabel("Refresh")
                 }
             }
             .onAppear { store.send(.onAppear) }
