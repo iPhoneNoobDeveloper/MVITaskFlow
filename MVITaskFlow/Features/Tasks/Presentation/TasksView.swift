@@ -30,6 +30,10 @@ struct TasksView: View {
                 }
                 .padding(.horizontal)
                 
+                if store.state.isloading {
+                    ProgressView().padding(.top, 16)
+                }
+                
                 List {
                     ForEach(store.state.tasks) { task in
                         HStack {
