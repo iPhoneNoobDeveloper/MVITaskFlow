@@ -1,0 +1,18 @@
+# Xcode
+DerivedData/
+*.xcuserstate
+*.xcuserdata
+*.moved-aside
+*.xccheckout
+*.xcscmblueprint
+
+# Swift Package Manager
+.build/
+Packages/
+Package.resolved
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
