@@ -12,7 +12,7 @@ struct TasksFeature {
     // MARK:- State
     struct TaskState: Equatable, Sendable {
         var tasks: [TaskItem] = []
-        var isloading: Bool = false
+        var isLoading: Bool = false
         var errorMessage: String? = nil
         var draftTitle = ""
     }
@@ -25,6 +25,8 @@ struct TasksFeature {
         case addTapped
         case toggleCompleted(id: UUID)
         case dismissError
+        case delete(id: UUID)
+
         
         // Internal intents (Effect -> Store)
         case tasksLoaded([TaskItem])
@@ -35,6 +37,8 @@ struct TasksFeature {
     struct Environment {
         var fetchTasks: @Sendable () async throws -> [TaskItem]
         var saveTask: @Sendable (TaskItem) async throws -> Void
+        var deleteTask: @Sendable (UUID) async throws -> Void
+        
         
         static let mock: TasksFeature.Environment = (
             Environment(fetchTasks: {
@@ -45,6 +49,8 @@ struct TasksFeature {
                     TaskItem(title: "Push to GitHub")
                 ]
             }, saveTask: { _ in
+                try await Task.sleep(nanoseconds: 150_000_000)
+            }, deleteTask: { _ in
                 try await Task.sleep(nanoseconds: 150_000_000)
             })
         )
@@ -58,7 +64,7 @@ struct TasksFeature {
             case .onAppear:
                 // Avoid re-loading if we already have data
                 guard state.tasks.isEmpty else { return [] }
-                state.isloading = true
+                state.isLoading = true
                 state.errorMessage = nil
                 
                 return [
@@ -73,7 +79,7 @@ struct TasksFeature {
                 ]
                 
             case .refresh:
-                state.isloading = true
+                state.isLoading = true
                 state.errorMessage = nil
                 
                 return [
@@ -88,12 +94,12 @@ struct TasksFeature {
                 ]
                 
             case .tasksLoaded(let tasks):
-                state.isloading = false
+                state.isLoading = false
                 state.tasks = tasks
                 return []
                 
             case .tasksFailed(let message):
-                state.isloading = false
+                state.isLoading = false
                 state.errorMessage = message.isEmpty ? "Something went wrong." : message
                 return []
                 
@@ -129,8 +135,22 @@ struct TasksFeature {
             case .dismissError:
                 state.errorMessage = nil
                 return []
+                
+            case .delete(let id):
+                guard let index = state.tasks.firstIndex(where: { $0.id == id }) else { return [] }
+                let removed = state.tasks.remove(at: index)
+                
+                return [
+                    Effect {
+                        do {
+                            try await env.deleteTask(removed.id)
+                            return nil
+                        } catch {
+                            return .tasksFailed(error.localizedDescription)
+                        }
+                    }
+                ]
             }
-            
         }
     }
 }
