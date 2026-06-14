@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality-and-tests:
+    runs-on: macos-15
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install code-quality tools
+        run: brew install swiftlint swiftformat
+
+      - name: Lint Swift
+        run: swiftlint lint --strict
+
+      - name: Check Swift formatting
+        run: swiftformat --lint .
+
+      - name: Run unit and UI tests
+        run: |
+          xcodebuild test \
+            -project MVITaskFlow.xcodeproj \
+            -scheme MVITaskFlow \
+            -destination 'platform=iOS Simulator,OS=latest,name=iPhone 16 Pro' \
+            CODE_SIGNING_ALLOWED=NO
