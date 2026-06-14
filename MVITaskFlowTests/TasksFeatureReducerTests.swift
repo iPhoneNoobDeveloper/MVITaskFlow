@@ -78,4 +78,23 @@ final class TasksFeatureReducerTests: XCTestCase {
         XCTAssertTrue(state.isLoading)
         XCTAssertEqual(effects.count, 1)
     }
+
+    func testTasksFailed_stopsLoadingAndStoresMessage() {
+        var state = TasksFeature.TaskState(isLoading: true)
+        let reducer = TasksFeature.reducer(env: .mock)
+
+        _ = reducer(&state, .tasksFailed("Offline"))
+
+        XCTAssertFalse(state.isLoading)
+        XCTAssertEqual(state.errorMessage, "Offline")
+    }
+
+    func testDismissError_clearsMessage() {
+        var state = TasksFeature.TaskState(errorMessage: "Offline")
+        let reducer = TasksFeature.reducer(env: .mock)
+
+        _ = reducer(&state, .dismissError)
+
+        XCTAssertNil(state.errorMessage)
+    }
 }
