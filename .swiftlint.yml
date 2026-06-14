@@ -1,0 +1,14 @@
+included:
+  - MVITaskFlow
+  - MVITaskFlowTests
+  - MVITaskFlowUITests
+
+excluded:
+  - MVITaskFlow.xcodeproj
+
+disabled_rules:
+  - cyclomatic_complexity
+  - function_body_length
+  - line_length
+
+reporter: xcode
