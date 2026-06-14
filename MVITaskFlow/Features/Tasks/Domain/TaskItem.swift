@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct TaskItem: Identifiable, Equatable, Sendable {
+public struct TaskItem: Codable, Identifiable, Equatable, Sendable {
     public let id: UUID
     public var title: String
     public var isCompleted: Bool
