@@ -23,12 +23,37 @@ final class MVITaskFlowUITests: XCTestCase {
     }
 
     @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
+    func testAddingTaskDisplaysItInTheList() throws {
         let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing"]
         app.launch()
 
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        let field = app.textFields["task-title-field"]
+        XCTAssertTrue(field.waitForExistence(timeout: 3))
+
+        field.tap()
+        field.typeText("Ship architecture reference")
+        app.buttons["add-task-button"].tap()
+
+        XCTAssertTrue(app.staticTexts["Ship architecture reference"].waitForExistence(timeout: 2))
+    }
+
+    @MainActor
+    func testEmptyState() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing-empty"]
+        app.launch()
+
+        XCTAssertTrue(app.otherElements["empty-state"].waitForExistence(timeout: 3))
+    }
+
+    @MainActor
+    func testErrorStateOffersRetry() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing-error"]
+        app.launch()
+
+        XCTAssertTrue(app.buttons["retry-button"].waitForExistence(timeout: 3))
     }
 
     @MainActor
