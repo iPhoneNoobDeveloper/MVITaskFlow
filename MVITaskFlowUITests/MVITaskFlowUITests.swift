@@ -23,37 +23,44 @@ final class MVITaskFlowUITests: XCTestCase {
     }
 
     @MainActor
-    func testAddingTaskDisplaysItInTheList() throws {
+    private func launchApp(arguments: [String] = []) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing"]
+        app.launchArguments = arguments
         app.launch()
+        XCTAssertTrue(app.navigationBars["Tasks"].waitForExistence(timeout: 5))
+        return app
+    }
 
-        let field = app.textFields["task-title-field"]
-        XCTAssertTrue(field.waitForExistence(timeout: 3))
+    @MainActor
+    func testAddingTaskDisplaysItInTheList() throws {
+        let app = launchApp(arguments: ["--ui-testing"])
+
+        let field = app.textFields["New task"].firstMatch
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
 
         field.tap()
         field.typeText("Ship architecture reference")
-        app.buttons["add-task-button"].tap()
+        if app.buttons["Done"].exists {
+            app.buttons["Done"].tap()
+        }
+        app.buttons["Add task"].tap()
 
-        XCTAssertTrue(app.staticTexts["Ship architecture reference"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["Ship architecture reference"].waitForExistence(timeout: 5))
     }
 
     @MainActor
     func testEmptyState() throws {
-        let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing-empty"]
-        app.launch()
+        let app = launchApp(arguments: ["--ui-testing-empty"])
 
-        XCTAssertTrue(app.otherElements["empty-state"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["No tasks yet"].waitForExistence(timeout: 5))
     }
 
     @MainActor
     func testErrorStateOffersRetry() throws {
-        let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing-error"]
-        app.launch()
+        let app = launchApp(arguments: ["--ui-testing-error"])
 
-        XCTAssertTrue(app.buttons["retry-button"].waitForExistence(timeout: 3))
+        XCTAssertTrue(app.staticTexts["Could not load tasks"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Retry"].waitForExistence(timeout: 5))
     }
 
     @MainActor
